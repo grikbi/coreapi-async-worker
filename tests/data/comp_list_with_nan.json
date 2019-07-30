@@ -1,0 +1,99 @@
+[{
+	"ecosystem": "maven",
+	"name": "io.fabric8.funktion.connector:connector-smpp",
+	"cooccurrence_count": 0,
+	"latest_version": "1.1.55",
+	"licenses": ["Apache License, Version 2.0"],
+	"topic_list": [],
+	"cooccurrence_probability": nan,
+	"code_metrics": {
+		"average_cyclomatic_complexity": -1,
+		"code_lines": -1,
+		"total_files": -1
+	},
+	"security": [],
+	"osio_user_count": 0,
+	"github": {
+		"forks_count": -1,
+		"total_releases": "14",
+		"used_by": [],
+		"first_release_date": "N/A",
+		"stargazers_count": -1,
+		"dependent_repos": "0",
+		"watchers": -1,
+		"dependent_projects": "0",
+		"pull_requests": {
+			"month": {
+				"closed": -1,
+				"opened": -1
+			},
+			"year": {
+				"closed": -1,
+				"opened": -1
+			}
+		},
+		"contributors": -1,
+		"size": "N/A",
+		"latest_release_duration": "2017-03-08 21:54:12",
+		"issues": {
+			"month": {
+				"closed": -1,
+				"opened": -1
+			},
+			"year": {
+				"closed": -1,
+				"opened": -1
+			}
+		}
+	},
+	"version": "1.1.55"
+}, {
+	"ecosystem": "maven",
+	"name": "io.fabric8.funktion.connector:connector-smpps",
+	"cooccurrence_count": 0,
+	"latest_version": "1.1.55",
+	"licenses": ["Apache License, Version 2.0"],
+	"topic_list": [],
+	"cooccurrence_probability": nan,
+	"code_metrics": {
+		"average_cyclomatic_complexity": -1,
+		"code_lines": -1,
+		"total_files": -1
+	},
+	"security": [],
+	"osio_user_count": 0,
+	"github": {
+		"forks_count": -1,
+		"total_releases": "19",
+		"used_by": [],
+		"first_release_date": "N/A",
+		"stargazers_count": -1,
+		"dependent_repos": "0",
+		"watchers": -1,
+		"dependent_projects": "0",
+		"pull_requests": {
+			"month": {
+				"closed": -1,
+				"opened": -1
+			},
+			"year": {
+				"closed": -1,
+				"opened": -1
+			}
+		},
+		"contributors": -1,
+		"size": "N/A",
+		"latest_release_duration": "2017-03-08 21:56:29",
+		"issues": {
+			"month": {
+				"closed": -1,
+				"opened": -1
+			},
+			"year": {
+				"closed": -1,
+				"opened": -1
+			}
+		}
+	},
+	"version": "1.1.55"
+}]

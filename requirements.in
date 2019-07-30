@@ -1,0 +1,11 @@
+flask>=1.0.0
+gunicorn
+flask-cors
+requests
+requests-futures
+gevent
+semantic_version
+psycopg2
+sqlalchemy
+codecov
+raven[flask]
