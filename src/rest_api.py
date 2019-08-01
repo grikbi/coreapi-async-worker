@@ -1,66 +1,69 @@
 """Implementation of the REST API for the backbone service."""
 
 import os
-import flask
 import logging
-from f8a_worker.setup_celery import init_selinon
-from flask import Flask, request, current_app
-from flask_cors import CORS
+import uvicorn
+import json
+from fastapi import FastAPI
+from starlette.middleware.cors import CORSMiddleware
+from starlette.requests import Request
+from models import ServiceInput
 from recommender import RecommendationTask
 from stack_aggregator import StackAggregator
 from raven.contrib.flask import Sentry
 from src.utils import push_data, total_time_elapsed, get_time_delta
 
+app = FastAPI()
 
-def setup_logging(flask_app):
-    """Perform the setup of logging (file, log level) for this application."""
-    if not flask_app.debug:
-        handler = logging.StreamHandler()
-        handler.setFormatter(logging.Formatter(
-            '[%(asctime)s] %(levelname)s in %(module)s: %(message)s'))
-        log_level = os.environ.get('FLASK_LOGGING_LEVEL', logging.getLevelName(logging.WARNING))
-        handler.setLevel(log_level)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
-        flask_app.logger.addHandler(handler)
-        flask_app.config['LOGGER_HANDLER_POLICY'] = 'never'
-        flask_app.logger.setLevel(logging.DEBUG)
-
-
-app = Flask(__name__)
-setup_logging(app)
-CORS(app)
 SENTRY_DSN = os.environ.get("SENTRY_DSN", "")
-sentry = Sentry(app, dsn=SENTRY_DSN, logging=True, level=logging.ERROR)
-
-init_selinon()
+#sentry = Sentry(app, dsn=SENTRY_DSN, logging=True, level=logging.ERROR)
 
 
-@app.route('/api/v1/readiness')
+@app.get('/api/v1/readiness')
 def readiness():
     """Handle GET requests that are sent to /api/v1/readiness REST API endpoint."""
-    return flask.jsonify({}), 200
+    return {}
 
 
-@app.route('/api/v1/liveness')
-def liveness():
+@app.get('/api/v1/liveness')
+def liveness(request: Request):
     """Handle GET requests that are sent to /api/v1/liveness REST API endpoint."""
-    return flask.jsonify({}), 200
-
-
-@app.route('/api/v1/recommender', methods=['POST'])
-def recommender():
-    """Handle POST requests that are sent to /api/v1/recommender REST API endpoint."""
-    r = {'recommendation': 'failure', 'external_request_id': None}
+    request_dict = dict(request)
     metrics_payload = {
         'pid': os.getpid(),
         'hostname': os.environ.get("HOSTNAME"),
-        'endpoint': request.endpoint,
-        'request_method': request.method,
+        'endpoint': request_dict['path'],
+        'request_method': request_dict['method'],
+        'status_code': 200
+    }
+    print (metrics_payload)
+    return {}
+
+
+@app.post('/api/v1/recommender')
+def recommender(payload: ServiceInput, request: Request):
+    """Handle POST requests that are sent to /api/v1/recommender REST API endpoint."""
+    r = {'recommendation': 'failure', 'external_request_id': None}
+
+    request_dict = dict(request)
+    metrics_payload = {
+        'pid': os.getpid(),
+        'hostname': os.environ.get("HOSTNAME"),
+        'endpoint': request_dict['path'],
+        'request_method': request_dict['method'],
         'status_code': 200
     }
 
-    input_json = request.get_json()
-    current_app.logger.debug('recommender/ request with payload: {p}'.format(p=input_json))
+    input_json = json.loads(payload.json())
+    app.logger.debug('recommender/ request with payload: {p}'.format(p=input_json))
 
     if input_json and 'external_request_id' in input_json and input_json['external_request_id']:
         try:
@@ -82,22 +85,24 @@ def recommender():
     except KeyError:
         pass
 
-    return flask.jsonify(r), metrics_payload['status_code']
+    return r, metrics_payload['status_code']
 
 
-@app.route('/api/v1/stack_aggregator', methods=['POST'])
-def stack_aggregator():
+@app.post('/api/v1/stack_aggregator')
+def stack_aggregator(payload: ServiceInput, request: Request):
     """Handle POST requests that are sent to /api/v1/stack_aggregator REST API endpoint."""
     s = {'stack_aggregator': 'failure', 'external_request_id': None}
-    input_json = request.get_json()
+
+    request_dict = dict(request)
     metrics_payload = {
         'pid': os.getpid(),
         'hostname': os.environ.get("HOSTNAME"),
-        'endpoint': 'api_v1.get_stack_analyses',
-        'request_method': request.method,
+        'endpoint': request_dict['path'],
+        'request_method': request_dict['method'],
         'status_code': 200
     }
 
+    input_json = json.loads(payload.json())
     if input_json and 'external_request_id' in input_json \
             and input_json['external_request_id']:
 
@@ -127,7 +132,7 @@ def stack_aggregator():
         except KeyError:
             pass
 
-    return flask.jsonify(s)
+    return s
 
 
 if __name__ == "__main__":

@@ -1,6 +1,6 @@
-flask>=1.0.0
+uvicorn
+fastapi
 gunicorn
-flask-cors
 requests
 requests-futures
 gevent
@@ -9,3 +9,4 @@ psycopg2
 sqlalchemy
 codecov
 raven[flask]
+pydantic

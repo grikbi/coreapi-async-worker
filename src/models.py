@@ -3,18 +3,21 @@
 from pydantic import BaseModel
 from typing import List
 
-class InnerDependency:
+
+class InnerDependency(BaseModel):
     """Transitive dependencies information."""
     package: str
     version: str
 
-class Dependency:
+
+class Dependency(BaseModel):
     """Dependency information."""
     package: str
     version: str
     deps: List[InnerDependency] = []
 
-class Detail:
+
+class Detail(BaseModel):
     """Result details."""
     ecosystem: str
     manifest_file_path: str
@@ -22,9 +25,10 @@ class Detail:
     _resolved: List[Dependency]
 
 
-class Result:
+class Result(BaseModel):
     """Result section."""
     details: List[Detail]
+
 
 class ServiceInput(BaseModel):
     """Input for stack aggregation and recommendation."""
