@@ -22,7 +22,7 @@ idna==2.8                 # via requests
 itsdangerous==1.1.0       # via flask
 jinja2==2.10.1            # via flask
 markupsafe==1.1.1         # via jinja2
-psycopg2==2.8.3
+psycopg2-binary==2.8.3
 pydantic==0.30
 raven[flask]==6.10.0
 requests-futures==1.0.0

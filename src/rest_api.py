@@ -1,8 +1,6 @@
 """Implementation of the REST API for the backbone service."""
 
 import os
-import logging
-import uvicorn
 import json
 from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
@@ -10,7 +8,7 @@ from starlette.requests import Request
 from models import ServiceInput
 from recommender import RecommendationTask
 from stack_aggregator import StackAggregator
-from raven.contrib.flask import Sentry
+# from raven.contrib.flask import Sentry
 from src.utils import push_data, total_time_elapsed, get_time_delta
 
 app = FastAPI()

@@ -9,7 +9,6 @@ import os
 import datetime
 import semantic_version as sv
 import logging
-from flask import current_app
 from f8a_worker.models import WorkerResult
 from f8a_worker.setup_celery import init_celery
 from selinon import run_flow
@@ -205,7 +204,7 @@ def convert_version_to_proper_semantic(version, package_name=None):
         version = version.replace('-', '+', 3)
         conv_version = sv.Version.coerce(version)
     except ValueError:
-        current_app.logger.info(
+        logger.info(
             "Unexpected ValueError for the package {} due to version {}"
             .format(package_name, version))
         pass
@@ -254,7 +253,7 @@ def select_latest_version(input_version='', libio='', anitya='', package_name=No
         """In case of failure let's not show any latest version at all.
         Also, no generation of stack trace,
         as we are only intersted in the package that is causing the error."""
-        current_app.logger.info(
+        logger.info(
             "Unexpected ValueError while selecting latest version for package {}. Debug:{}"
             .format(package_name,
                     {'input_version': input_version, 'libio': libio, 'anitya': anitya}))
