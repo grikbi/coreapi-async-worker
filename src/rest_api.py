@@ -2,7 +2,8 @@
 
 import os
 import json
-from fastapi import FastAPI
+import logging
+from fastapi import FastAPI, Body
 from starlette.middleware.cors import CORSMiddleware
 from starlette.requests import Request
 from models import ServiceInput
@@ -10,6 +11,9 @@ from recommender import RecommendationTask
 from stack_aggregator import StackAggregator
 # from raven.contrib.flask import Sentry
 from src.utils import push_data, total_time_elapsed, get_time_delta
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__file__)
 
 app = FastAPI()
 
@@ -47,7 +51,7 @@ def liveness(request: Request):
 
 
 @app.post('/api/v1/recommender')
-def recommender(payload: ServiceInput, request: Request):
+def recommender(payload: ServiceInput, request: Request, check_license: bool = True, persist: bool = True):
     """Handle POST requests that are sent to /api/v1/recommender REST API endpoint."""
     r = {'recommendation': 'failure', 'external_request_id': None}
 
@@ -61,12 +65,11 @@ def recommender(payload: ServiceInput, request: Request):
     }
 
     input_json = json.loads(payload.json())
-    app.logger.debug('recommender/ request with payload: {p}'.format(p=input_json))
+    logger.info('recommender/ request with payload: {p}'.format(p=input_json))
 
     if input_json and 'external_request_id' in input_json and input_json['external_request_id']:
         try:
-            check_license = request.args.get('check_license', 'false') == 'true'
-            persist = request.args.get('persist', 'true') == 'true'
+            logger.info('### {} - {}'.format(check_license, persist))
             r = RecommendationTask().execute(input_json, persist=persist,
                                              check_license=check_license)
         except Exception as e:
@@ -87,7 +90,7 @@ def recommender(payload: ServiceInput, request: Request):
 
 
 @app.post('/api/v1/stack_aggregator')
-def stack_aggregator(payload: ServiceInput, request: Request):
+def stack_aggregator(payload: ServiceInput, request: Request, persist: bool = True):
     """Handle POST requests that are sent to /api/v1/stack_aggregator REST API endpoint."""
     s = {'stack_aggregator': 'failure', 'external_request_id': None}
 
@@ -103,9 +106,7 @@ def stack_aggregator(payload: ServiceInput, request: Request):
     input_json = json.loads(payload.json())
     if input_json and 'external_request_id' in input_json \
             and input_json['external_request_id']:
-
         try:
-            persist = request.args.get('persist', 'true') == 'true'
             s = StackAggregator().execute(input_json, persist=persist)
             if s is not None and s.get('result') and s.get('result').get('_audit'):
                 # Creating and Pushing Total Metrics Data to Accumulator
@@ -125,8 +126,9 @@ def stack_aggregator(payload: ServiceInput, request: Request):
         try:
             # Pushing Individual Metrics Data to Accumulator
             metrics_payload['value'] = get_time_delta(audit_data=s['result']['_audit'])
-            metrics_payload['endpoint'] = request.endpoint
-            push_data(metrics_payload)
+            metrics_payload['endpoint'] = request_dict['path']
+            if os.getenv('ACCUMULATE_MATRICS', False):
+                push_data(metrics_payload)
         except KeyError:
             pass
 

@@ -370,13 +370,13 @@ class RecommendationTask:
         if payload and 'ecosystem' in payload[0]:
             quickstarts = False
             if payload[0]['ecosystem'] in RecommendationTask.chester_ecosystems:
-                INSIGHTS_SERVICE_HOST = os.getenv("CHESTER_SERVICE_HOST")
+                INSIGHTS_SERVICE_HOST = os.getenv("NPM_SERVICE_HOST")
             elif payload[0]['ecosystem'] in RecommendationTask.pypi_ecosystems:
                 INSIGHTS_SERVICE_HOST = os.getenv("PYPI_SERVICE_HOST")
             elif payload[0]['ecosystem'] in RecommendationTask.golang_ecosystem:
                 INSIGHTS_SERVICE_HOST = os.environ.get("GOLANG_SERVICE_HOST")
             else:
-                INSIGHTS_SERVICE_HOST = os.getenv("HPF_SERVICE_HOST") + "-" + payload[0][
+                INSIGHTS_SERVICE_HOST = os.getenv("MAVEN_SERVICE_HOST") + "-" + payload[0][
                     'ecosystem']
                 if payload[0]['ecosystem'] == 'maven':
                     quickstarts = is_quickstart_majority(payload[0]['package_list'])
@@ -436,8 +436,8 @@ class RecommendationTask:
 
         for result in results:
             temp_input_stack = {d["package"]: d["version"] for d in
-                                result.get("details", [])[0].get("_resolved")}
-            for tdeps in result.get("details", [])[0].get("_resolved"):
+                                result.get("details", [])[0].get("resolved")}
+            for tdeps in result.get("details", [])[0].get("resolved"):
                 temp_transitive_stack = [d['package'] for d in tdeps.get('deps', [])]
                 logger.debug("transitive_stack {}".format(temp_transitive_stack))
                 transitive_stack.update(temp_transitive_stack)
@@ -445,7 +445,7 @@ class RecommendationTask:
 
         for result in results:
             details = result['details'][0]
-            resolved = details['_resolved']
+            resolved = details['resolved']
             manifest_file_path = details['manifest_file_path']
 
             recommendation = {

@@ -22,7 +22,7 @@ class Detail(BaseModel):
     ecosystem: str
     manifest_file_path: str
     manifest_file: str
-    _resolved: List[Dependency]
+    resolved: List[Dependency]
 
 
 class Result(BaseModel):

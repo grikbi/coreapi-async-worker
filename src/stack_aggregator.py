@@ -10,7 +10,7 @@ import datetime
 import requests
 import copy
 from collections import defaultdict
-from utils import (select_latest_version, server_create_analysis, LICENSE_SCORING_URL_REST,
+from utils import (select_latest_version, LICENSE_SCORING_URL_REST,
                    execute_gremlin_dsl, GREMLIN_SERVER_URL_REST, persist_data_in_db,
                    GREMLIN_QUERY_SIZE, format_date)
 import logging
@@ -571,13 +571,12 @@ class StackAggregator:
         """Task code."""
         started_at = datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S.%f")
         stack_data = []
-        unknown_dep_list = []
         external_request_id = aggregated.get('external_request_id')
         # TODO multiple license file support
         current_stack_license = aggregated.get('current_stack_license', {}).get('1', {})
 
         for result in aggregated['result']:
-            resolved = result['details'][0]['_resolved']
+            resolved = result['details'][0]['resolved']
             ecosystem = result['details'][0]['ecosystem']
             manifest = result['details'][0]['manifest_file']
             manifest_file_path = result['details'][0]['manifest_file_path']
@@ -592,7 +591,6 @@ class StackAggregator:
                         "current_stack_license": current_stack_license
                     })
                 stack_data.append(output)
-            unknown_dep_list.extend(finished['unknown_deps'])
         ended_at = datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S.%f")
         audit = {
             'started_at': started_at,
@@ -614,14 +612,4 @@ class StackAggregator:
             persiststatus = {'stack_aggregator': 'success',
                              'external_request_id': external_request_id,
                              'result': stack_data}
-        # Ingestion of Unknown dependencies
-        logger.info("Unknown ingestion flow process initiated.")
-        try:
-            for dep in unknown_dep_list:
-                server_create_analysis(ecosystem, dep['name'], dep['version'], api_flow=False,
-                                       force=False, force_graph_sync=True)
-        except Exception as e:
-            logger.error('Ingestion has been failed for ' + dep['name'])
-            logger.error(e)
-            pass
         return persiststatus

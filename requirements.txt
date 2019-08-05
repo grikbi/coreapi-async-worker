@@ -11,6 +11,8 @@ click==7.0                # via flask, uvicorn
 codecov==2.0.15
 coverage==4.5.4           # via codecov
 dataclasses==0.6          # via pydantic
+dnspython==1.16.0         # via email-validator
+email-validator==1.0.4
 fastapi==0.33.0
 flask==1.1.1              # via raven
 gevent==1.4.0
@@ -18,7 +20,7 @@ greenlet==0.4.15          # via gevent
 gunicorn==19.9.0
 h11==0.8.1                # via uvicorn
 httptools==0.0.13         # via uvicorn
-idna==2.8                 # via requests
+idna==2.8                 # via email-validator, requests
 itsdangerous==1.1.0       # via flask
 jinja2==2.10.1            # via flask
 markupsafe==1.1.1         # via jinja2
