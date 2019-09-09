@@ -1,13 +1,11 @@
-FROM registry.centos.org/centos/centos:7
+FROM farrion/python3:latest
+
+LABEL maintainer="Samuzzal Choudhury <samuzzal@redhat.com>"
 
 ENV F8A_WORKER_VERSION=d403113 \
     F8A_UTIL_VERSION=de8046b \
     LC_ALL=en_US.utf-8 \
     LANG=en_US.utf-8
-
-RUN yum install -y epel-release &&\
-    yum install -y gcc git python36-pip python36-requests httpd httpd-devel python36-devel &&\
-    yum clean all
 
 COPY ./requirements.txt /
 
